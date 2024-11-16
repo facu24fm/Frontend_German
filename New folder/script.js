@@ -68,7 +68,6 @@ const comida = () => {
     if (viboraInitX === foodX && viboraInitY === foodY) {
         posicionesComida();
         snakeCuerpo.push([foodX, foodY]);
-        htmlMarkup += `<div class="cuerpo" style="grid-area: ${viboraInitY} / ${viboraInitX}"></div>`;
     }
 
     if (viboraInitX <= 0 || viboraInitX > 20 || viboraInitY <= 0 || viboraInitY > 20) {
@@ -85,17 +84,20 @@ const comida = () => {
 
     for(let i = 0; i < snakeCuerpo.length; i++) {
         let partecuerpo = 'cuerpo';
+        let imgSrc = 'img/cuerpo.png';
 
         if (i === 0) {
             partecuerpo = 'cabeza';
+            imgSrc = 'img/cabeza.png';
             directionClass = velocidadX === 1 ? 'right' : velocidadX === -1 ? 'left' : velocidadY === -1 ? 'up' : 'down';
+
         } else if (i === snakeCuerpo.length - 1) {
             partecuerpo = 'cola';
+            imgSrc = 'img/cola.png';
         } else if (esGiro(i)) { 
             partecuerpo = 'giro';
         }
-        htmlMarkup += `<div class="${partecuerpo} ${directionClass}" style="grid-area: ${Math.round(snakeCuerpo[i][1])} / ${Math.round(snakeCuerpo[i][0])}" ></div>`;
-
+        htmlMarkup += `<img src="${imgSrc}" class="${partecuerpo} ${directionClass}" style="grid-area: ${Math.round(snakeCuerpo[i][1])} / ${Math.round(snakeCuerpo[i][0])}" />`;
     }
 
     playBoard.innerHTML = htmlMarkup;
