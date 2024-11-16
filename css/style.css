@@ -290,7 +290,7 @@ body {
     }
 
     .titleGames {
-        font-size: 45px;
+        font-size: 40px;
         right: 75px;
         top: 140px;
     }
@@ -305,7 +305,9 @@ body {
 @media (max-width: 480px) {
 
     .titleGames {
-        top: 120px;
+        top: 160px;
+        left: -95px;
+        font-size: 34px;
     }
 
     .cajaGames {
@@ -316,8 +318,8 @@ body {
 @media (max-width: 400px) {
 
     .titleGames {
-        top: 120px;
-        right: 120px;
+        top: 150px;
+        right: 80px;
         font-size: 25px;
     }
 

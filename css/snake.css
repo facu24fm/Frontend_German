@@ -18,10 +18,9 @@ body {
 }
 
 .caja {
-    width: 65vmin;
-    height: 70vmin;
-    background-color: rgb(36, 54, 44);
-    box-shadow: 0 0 20px rgb(36, 54, 44);
+    width: 500px;
+    height: 500px;
+
 }
 
 /* estilos para el logo */
@@ -62,8 +61,10 @@ body {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template: repeat(20, 1fr) / repeat(20, 1fr);
+    grid-template: repeat(30, 1fr) / repeat(30, 1fr);
     gap: 0;
+    border-radius: 4%;
+    box-shadow: -6px 5px 20px rgb(36, 54, 44);
 }
 
 
@@ -92,16 +93,22 @@ body {
 
 
 .play--board .cabeza {
-    background-color: #ffffff;
+    background-image: url('../img/cabeza.png');
+    background-size: 230%;
+    background-position: center;
 }
 
 
 .play--board .cuerpo {
-    background-color: #ffffff;
+    background-image: url('../img/cuerpo.png');
+    background-size: 230%;
+    background-position: center;
 }
 
 .play--board .cola {
-    background-color: #ffffff;
+    background-image: url('../img/cola.png');
+    background-size: 260%;
+    background-position: center;
 }
 
 .play--board .giro {
@@ -115,10 +122,12 @@ body {
 
 .play--board .cabeza.up, .play--board .cuerpo.up, .play--board .cola.up {
     transform: rotate(-180deg);
+    
   }
   
   .play--board .cabeza.down, .play--board .cuerpo.down, .play--board .cola.down {
     transform: rotate(0deg);
+    
   }
   
   .play--board .cabeza.left, .play--board .cuerpo.left, .play--board .cola.left {
@@ -128,6 +137,7 @@ body {
   .play--board .cabeza.right, .play--board .cuerpo.right, .play--board .cola.right {
     transform: rotate(-90deg);
   }
+
 
 
 /* estilos para el menu */
@@ -216,6 +226,23 @@ display: block;
 .difficulty-button.active {
     border: 3px solid #ff0000;
     background-color: #02ff63;
+
+}
+
+/* boton back --> index.html */
+
+.botonBack {
+    position : absolute;
+    top: 15px;
+    left: 15px;
+    width: 60px;
+    height: 40px;
+    background-color: tomato;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15%;
+    pointer-events: auto;
 
 }
 

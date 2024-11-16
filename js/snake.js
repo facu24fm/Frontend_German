@@ -16,7 +16,7 @@ let viboraInitX, viboraInitY;
 let velocidadX = 0, velocidadY = 0;
 let estadoJuego = false;
 let setIntervalId;
-let velocidadJuego = 125; 
+let velocidadJuego = 110; 
 
 difficultyButtons.forEach(button => {
     button.addEventListener("click", () => {
@@ -44,13 +44,13 @@ function iniciarJuego() {
 
 // Funciones para la inicialización del juego
 const posicionInitVibora = () => {
-    viboraInitX = Math.floor(Math.random() * 20 ) + 1;
-    viboraInitY = Math.floor(Math.random() * 20 ) + 1;
+    viboraInitX = Math.floor(Math.random() * 30 ) + 1;
+    viboraInitY = Math.floor(Math.random() * 30 ) + 1;
 };
 
 const posicionesComida = () => {
-    foodX = Math.floor(Math.random() * 20 ) + 1;
-    foodY = Math.floor(Math.random() * 20 ) + 1;
+    foodX = Math.floor(Math.random() * 30 ) + 1;
+    foodY = Math.floor(Math.random() * 30 ) + 1;
 };
 
 const JuegoGameOver = () => {
@@ -71,7 +71,7 @@ const comida = () => {
         htmlMarkup += `<div class="cuerpo" style="grid-area: ${viboraInitY} / ${viboraInitX}"></div>`;
     }
 
-    if (viboraInitX <= 0 || viboraInitX > 20 || viboraInitY <= 0 || viboraInitY > 20) {
+    if (viboraInitX <= 0 || viboraInitX > 30 || viboraInitY <= 0 || viboraInitY > 30) {
         estadoJuego = true;
     }
 
@@ -80,8 +80,8 @@ const comida = () => {
     }
 
     snakeCuerpo[0] = [viboraInitX, viboraInitY];
-    viboraInitX += velocidadX;
-    viboraInitY += velocidadY;
+    viboraInitX += velocidadX ;
+    viboraInitY += velocidadY ;
 
     for(let i = 0; i < snakeCuerpo.length; i++) {
         let partecuerpo = 'cuerpo';
@@ -91,24 +91,15 @@ const comida = () => {
             directionClass = velocidadX === 1 ? 'right' : velocidadX === -1 ? 'left' : velocidadY === -1 ? 'up' : 'down';
         } else if (i === snakeCuerpo.length - 1) {
             partecuerpo = 'cola';
-        } else if (esGiro(i)) { 
-            partecuerpo = 'giro';
+        }else {
+            partecuerpo = 'cuerpo';
         }
-        htmlMarkup += `<div class="${partecuerpo} ${directionClass}" style="grid-area: ${Math.round(snakeCuerpo[i][1])} / ${Math.round(snakeCuerpo[i][0])}" ></div>`;
+        htmlMarkup += `<div class="${partecuerpo} ${directionClass}" style="grid-area: ${snakeCuerpo[i][1]} / ${snakeCuerpo[i][0]}" ></div>`;
 
     }
 
     playBoard.innerHTML = htmlMarkup;
 };
-
-const esGiro = (index) => {
-    const [posActualX, posActualY] = snakeCuerpo[index];
-    const [posAnteriorX, posAnteriorY] = snakeCuerpo[index - 1] || [];
-    const [posSiguienteX, posSiguienteY] = snakeCuerpo[index + 1] || [];
-
-    return (posActualX !== posAnteriorX && posActualY !== posSiguienteY) || (posActualY  !== posAnteriorY && posActualX !== posSiguienteX);
-};
-
 
 
 const moveVibora = (event) => {
@@ -139,6 +130,8 @@ const moveVibora = (event) => {
             break;
     }
 };
+
+
 
 
 startButton.addEventListener("click", () => {
