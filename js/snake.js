@@ -1,159 +1,184 @@
-const playBoard = document.querySelector(".play--board");
-const menu = document.getElementById("menu");
-const startButton = document.getElementById("startButton");
-const difficultyButtons = document.querySelectorAll(".difficulty-button");
-const settingsButton = document.getElementById("settingsButton");
-const settingsMenu = document.getElementById("settingsMenu");
-const score = document.getElementById("caja--puntos");
-const backButton = document.getElementById("backButton");
-const viboraCaja = document.querySelector(".vibora")
-const logoSnake = document.getElementById("Logo");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
 
-let foodX, foodY;
-let snakeCuerpo = [];
-let viboraInitX, viboraInitY;
-let velocidadX = 0, velocidadY = 0;
-let estadoJuego = false;
-let setIntervalId;
-let velocidadJuego = 110; 
+canvas.width = 600;
+canvas.height = 600;
 
-difficultyButtons.forEach(button => {
-    button.addEventListener("click", () => {
-        velocidadJuego = parseInt(button.getAttribute("data-speed"));
-    });
-});
+// clase para hacer que el cuerpo siga a la cabeza
 
-difficultyButtons.forEach(button => {
-    button.addEventListener("click", () => {
-        difficultyButtons.forEach(btn => btn.classList.remove("active"));
-        button.classList.add("active");
-            
-        });
-    });
+class CuerpoSnake {
+    constructor(radio,color,contexto,path) {
+        this.radio = radio;
+        this.color = color;
+        this.contexto = contexto;
+        this.path = path;
+    }
 
-function iniciarJuego() {
-    menu.style.display = "none";
-    playBoard.style.display = "grid"; 
-
-
-    posicionInitVibora();
-    posicionesComida();
-    setIntervalId = setInterval(comida, velocidadJuego);
+    dibujoCirculo(x, y, radio, color) {
+        this.contexto.beginPath();
+        this.contexto.arc(x, y,radio, 0, 2 * Math.PI);
+        this.contexto.fillStyle = color;
+        this.contexto.fill();
+        this.contexto.closePath();
 }
 
-// Funciones para la inicialización del juego
-const posicionInitVibora = () => {
-    viboraInitX = Math.floor(Math.random() * 30 ) + 1;
-    viboraInitY = Math.floor(Math.random() * 30 ) + 1;
-};
-
-const posicionesComida = () => {
-    foodX = Math.floor(Math.random() * 30 ) + 1;
-    foodY = Math.floor(Math.random() * 30 ) + 1;
-};
-
-const JuegoGameOver = () => {
-    clearInterval(setIntervalId);
-    estadoJuego = false;
-    location.reload(); // Recarga la página
-};
+dibujo() {
+    this.dibujoCirculo(this.path[0].x, this.path[0].y, this.radio, this.color);
+  }
+}
 
 
-const comida = () => {
-    if(estadoJuego) return JuegoGameOver();
+class snake {
 
-    let htmlMarkup = `<div class="comida" style="grid-area: ${foodY} / ${foodX}"></div>`;
-
-    if (viboraInitX === foodX && viboraInitY === foodY) {
-        posicionesComida();
-        snakeCuerpo.push([foodX, foodY]);
-        htmlMarkup += `<div class="cuerpo" style="grid-area: ${viboraInitY} / ${viboraInitX}"></div>`;
+    constructor(posicion, radio, velocidad, color, contexto) {
+        this.posicion = posicion;
+        this.radio = radio;
+        this.velocidad = velocidad;
+        this.color = color;
+        this.contexto = contexto;
+        this.rotacion = 0;
+        this.body = [];
+        this.teclas = {
+            A: false,
+            D: false
+        };
+        this.tecladoPulse();
+        
     }
 
-    if (viboraInitX <= 0 || viboraInitX > 30 || viboraInitY <= 0 || viboraInitY > 30) {
-        estadoJuego = true;
-    }
-
-    for(let i = snakeCuerpo.length - 1; i > 0; i--) {
-        snakeCuerpo[i] = snakeCuerpo[i - 1];
-    }
-
-    snakeCuerpo[0] = [viboraInitX, viboraInitY];
-    viboraInitX += velocidadX ;
-    viboraInitY += velocidadY ;
-
-    for(let i = 0; i < snakeCuerpo.length; i++) {
-        let partecuerpo = 'cuerpo';
-
-        if (i === 0) {
-            partecuerpo = 'cabeza';
-            directionClass = velocidadX === 1 ? 'right' : velocidadX === -1 ? 'left' : velocidadY === -1 ? 'up' : 'down';
-        } else if (i === snakeCuerpo.length - 1) {
-            partecuerpo = 'cola';
-        }else {
-            partecuerpo = 'cuerpo';
+    InicioJuego() {
+        for(let i = 0; i < 3; i++) {
+          let path = [];
+          for(let j = 0; j < 12; j++) {
+            path.push({
+              x:this.posicion.x,
+              y:this.posicion.y
+            })
+          }
+          this.body.push(new CuerpoSnake(this.radio, this.color, this.contexto, path));
         }
-        htmlMarkup += `<div class="${partecuerpo} ${directionClass}" style="grid-area: ${snakeCuerpo[i][1]} / ${snakeCuerpo[i][0]}" ></div>`;
+        this.dibujoCuerpo(); // Agregar esta línea
+      } 
+
+    dibujoCirculo(x, y, radio, color) {
+        this.contexto.beginPath();
+        this.contexto.arc(x, y,radio, 0, 2 * Math.PI);
+        this.contexto.fillStyle = color;
+        this.contexto.fill();
+        this.contexto.closePath();
 
     }
 
-    playBoard.innerHTML = htmlMarkup;
-};
+    dibujoCabeza () {
+        this.dibujoCirculo(this.posicion.x, this.posicion.y,this.radio, this.color);
 
+        // ojazos nene
+        this.dibujoCirculo(this.posicion.x, this.posicion.y - 9, this.radio - 5, "#fff");
+        this.dibujoCirculo(this.posicion.x + 1, this.posicion.y - 9, this.radio - 7, "#000");
+        this.dibujoCirculo(this.posicion.x + 5, this.posicion.y - 8, this.radio - 11, "#fff");
 
-const moveVibora = (event) => {
-    switch (event.key) {
-        case "ArrowLeft":
-            if (velocidadX !== 1) {
-                velocidadX = -1;
-                velocidadY = 0;
-            }
-            break;
-        case "ArrowRight":
-            if (velocidadX !== -1) {
-                velocidadX = 1;
-                velocidadY = 0;
-            }
-            break;
-        case "ArrowUp":
-            if (velocidadY !== 1) {
-                velocidadY = -1;
-                velocidadX = 0;
-            }
-            break;
-        case "ArrowDown":
-            if (velocidadY !== -1) {
-                velocidadY = 1;
-                velocidadX = 0;
-            }
-            break;
+        this.dibujoCirculo(this.posicion.x, this.posicion.y + 9, this.radio - 5, "#fff");
+        this.dibujoCirculo(this.posicion.x + 1, this.posicion.y + 9, this.radio - 7, "#000");
+        this.dibujoCirculo(this.posicion.x + 5, this.posicion.y + 8, this.radio - 11, "#fff");
+
     }
-};
+
+    actualizar() {
+        this.dibujoCuerpo();
+        this.dibujo();
+        if (this.teclas.A) {
+            this.rotacion -= 0.06;
+        }
+        if (this.teclas.D) {
+            this.rotacion += 0.06;
+        }
+        this.posicion.x += Math.cos(this.rotacion) * this.velocidad;
+        this.posicion.y += Math.sin(this.rotacion) * this.velocidad;
+        
+        
+    }
+
+    dibujoCuerpo() {
+
+        // con this.body(que es donde se 'guarda; el cuerpo del snake) se agrega un nuevo cuerpo en la primera posicion
+        this.body[0].path.unshift({
+            x: this.posicion.x,
+            y: this.posicion.y
+        })
+        // llamamos a la fn dibujo para que se dibuje el cuerpo
+        this.body[0].dibujo();
+
+        for (let i = 1; i < this.body.length; i++) {
+            this.body[i].path.unshift(this.body[i-1].path.pop());
+            this.body[i].dibujo();
+        }
+
+        this.body[this.body.length - 1].path.pop();
+    }
+
+    dibujo() {
+        this.contexto.save();
+
+        this.contexto.translate(this.posicion.x, this.posicion.y);
+        this.contexto.rotate(30 * Math.PI / 180);
+        this.contexto.translate(-this.posicion.x, -this.posicion.y);
+        this.dibujoCabeza();
+        this.contexto.restore();
+    }
+
+    tecladoPulse() {
+        document.addEventListener("keydown", (e) => {
+            if(e.key == 'a' || e.key == 'A') {
+                this.teclas.A = true;
+                
+            }
+            if(e.key == 'd' || e.key == 'D') {
+                this.teclas.D = true;
+                
+            }
+        })
+        
+        document.addEventListener("keyup", (e) => {
+            if(e.key == 'a' || e.key == 'A') {
+                this.teclas.A = false;
+                
+            }
+            if(e.key == 'd' || e.key == 'D') {
+                this.teclas.D = false;
+                
+            }
+        })
+    }
+}
+
+// creamos una instancia de la mismisima clase snake
+
+const SnakeFrost = new snake({x: 100, y: 100}, 13, 5, "#ff0094", ctx);
+SnakeFrost.InicioJuego();
 
 
 
+/* ------ solo dibuja el fondo -------
+* * * *  columnas en el bucle width
+* * * *  filas en el bucle height
+*/
+function fondoSnake() {
+    ctx.fillStyle = "#1B1C30";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-startButton.addEventListener("click", () => {
-    iniciarJuego(); 
-    score.classList.add("visible"); 
-});
+    for(let i = 0; i < canvas.height; i+= 90) {
+        for(let j = 0; j < canvas.width; j+= 90) {
+            ctx.fillStyle = "#23253C";
+            ctx.fillRect(j, i, 70, 70);
+        }
+    }
+}
 
-// Seccion de eventos
+function InitGame() {
+    fondoSnake();
+    SnakeFrost.actualizar();
+    requestAnimationFrame(InitGame);
+}
 
-document.addEventListener("keydown", moveVibora);
-
-settingsButton.addEventListener("click", () => {
-    settingsMenu.classList.add("visible");
-    startButton.classList.add("hidden");
-    settingsButton.classList.add("hidden");
-    logoSnake.classList.add("hidden");
-    
-});
-
-backButton.addEventListener("click", () => {
-    settingsMenu.classList.remove("visible");
-    startButton.classList.remove("hidden");
-    settingsButton.classList.remove("hidden");
-    logoSnake.classList.remove("hidden");
-});
+InitGame(); 
