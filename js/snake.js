@@ -80,10 +80,10 @@ class snake {
         this.body = [];
         this.teclas = {
             A: false,
-            D: false
+            D: false,
+            enable: true
         };
         this.tecladoPulse();
-        this.direccion = { x: 1, y: 0 };
         
     }
 
@@ -139,16 +139,16 @@ class snake {
     actualizar() {
         this.dibujoCuerpo();
         this.dibujo();
-        if (this.teclas.A) {
+        if (this.teclas.A && this.teclas.enable) {
             this.rotacion -= 0.04;
         }
-        if (this.teclas.D) {
+        if (this.teclas.D && this.teclas.enable) {
             this.rotacion += 0.04;        }
         this.posicion.x += Math.cos(this.rotacion) * this.velocidad;
         this.posicion.y += Math.sin(this.rotacion) * this.velocidad;
 
         
-        this.colision();
+        
         
     }
 
@@ -205,21 +205,6 @@ class snake {
         })
     }
 
-    colision() {
-        if (this.posicion.x + this.radio > canvas.width) {
-            this.posicion.x = 0 + this.radio; // Teletransportar al borde izquierdo
-        } 
-        if (this.posicion.x - this.radio < 0) {
-            this.posicion.x = canvas.width - this.radio; // Teletransportar al borde derecho
-        }
-        if (this.posicion.y + this.radio > canvas.height) {
-            this.posicion.y = 0 + this.radio; // Teletransportar al borde superior
-        }
-        if (this.posicion.y - this.radio < 0) {
-            this.posicion.y = canvas.height - this.radio; // Teletransportar al borde inferior
-        }
-    }
-}
 
 // creamos una instancia de la mismisima clase snake
 
