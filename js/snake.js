@@ -205,10 +205,13 @@ class snake {
         if (this.posicion.y - this.radio < 0) this.posicion.y = canvas.height - this.radio;
     }
 
+
+    // utilizamos reiniciarJuego para cuando colisione, reubicando el snake en las posiciones dadas
+    //  posicion en x: 15, y: 80, direccion yendo a la derecha, cuerpo vacio --body-- y llamando a InicioJuego
     reiniciarJuego() {
-        this.posicion = { x: this.radio * 10, y: this.radio * 10 }; // Cerca del lado izquierdo
-        this.direccion = { x: 1, y: 0 }; // Dirección inicial hacia la derecha
-        this.body = []; // Limpia el cuerpo del snake
+        this.posicion = { x: 15, y: 80 }; 
+        this.direccion = { x: 1, y: 0 }; 
+        this.body = []; 
         this.InicioJuego();
     }
 }
