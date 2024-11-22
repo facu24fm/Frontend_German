@@ -1,19 +1,16 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-
 canvas.width = 500;
-canvas.height = 600;
+canvas.height = 500;
 
-//clase para hacer la manzana
-
+// Clase para representar la manzana
 class apple {
     constructor(posicion, radio, color, contexto) {
         this.posicion = posicion;
         this.radio = radio;
         this.color = color;
         this.contexto = contexto;
-
     }
 
     dibujo() {
@@ -25,27 +22,38 @@ class apple {
     }
 
     colision(snake) {
-        let vector1 = {
-            x: this.posicion.x - snake.posicion.x,
-            y: this.posicion.y - snake.posicion.y
-        };
-        
-        let distancia = Math.sqrt((vector1.x * vector1.x) + (vector1.y * vector1.y));
+        let distancia = Math.hypot(this.posicion.x - snake.posicion.x, this.posicion.y - snake.posicion.y);
 
-        if(distancia < snake.radio + this.radio) {
-            this.posicion = {
+        if (distancia < snake.radio + this.radio) {
+            this.generarNuevaPosicion(snake);
+            snake.agregarCabeza();
+        }
+    }
+
+    generarNuevaPosicion(snake) {
+        let isValidPosition = false;
+        while (!isValidPosition) {
+            let nuevaPosicion = {
                 x: Math.floor(Math.random() * (canvas.width - this.radio * 2) + this.radio),
                 y: Math.floor(Math.random() * (canvas.height - this.radio * 2) + this.radio)
+            };
+
+            // Verificar que no colisione con el cuerpo de la serpiente
+            isValidPosition = snake.body.every(segmento => {
+                let distancia = Math.hypot(nuevaPosicion.x - segmento.path[0].x, nuevaPosicion.y - segmento.path[0].y);
+                return distancia > this.radio + snake.radio;
+            });
+
+            if (isValidPosition) {
+                this.posicion = nuevaPosicion;
             }
-            snake.agregarCabeza();
         }
     }
 }
 
-// clase para hacer que el cuerpo siga a la cabeza
-
+// Clase para representar los segmentos del cuerpo de la serpiente
 class CuerpoSnake {
-    constructor(radio,color,contexto,path) {
+    constructor(radio, color, contexto, path) {
         this.radio = radio;
         this.color = color;
         this.contexto = contexto;
@@ -54,11 +62,11 @@ class CuerpoSnake {
 
     dibujoCirculo(x, y, radio, color) {
         this.contexto.beginPath();
-        this.contexto.arc(x, y,radio, 0, 2 * Math.PI);
+        this.contexto.arc(x, y, radio, 0, 2 * Math.PI);
         this.contexto.fillStyle = color;
         this.contexto.fill();
         this.contexto.closePath();
-}
+    }
 
     dibujo() {
         for (let i = 0; i < this.path.length; i++) {
@@ -67,9 +75,8 @@ class CuerpoSnake {
     }
 }
 
-// clase para hacer la capocha
+// Clase para representar la serpiente
 class snake {
-
     constructor(posicion, radio, velocidad, color, contexto) {
         this.posicion = posicion;
         this.radio = radio;
@@ -78,54 +85,51 @@ class snake {
         this.contexto = contexto;
         this.rotacion = 0;
         this.body = [];
-        this.teclas = {
-            A: false,
-            D: false,
-            enable: true
-        };
+        this.teclas = { A: false, D: false };
         this.tecladoPulse();
-        
     }
 
     InicioJuego() {
-        for(let i = 0; i < 3; i++) {
+
+        this.body = [];
+
+        for (let i = 0; i < 5; i++) { // Crear 20 segmentos iniciales
             let path = [];
-            for(let j = 0; j < 12; j++) {
-            path.push({
-            x:this.posicion.x,
-            y:this.posicion.y
-            })
+            for (let j = 0; j < 13; j++) { // Cada segmento tendrá 20 posiciones
+                path.push({
+                    x: this.posicion.x - j * this.radio * 2 - i * this.radio * 2, // Ajustamos la posición inicial
+                    y: this.posicion.y
+                });
+            }
+            this.body.push(new CuerpoSnake(this.radio, this.color, this.contexto, path));
         }
-        this.body.push(new CuerpoSnake(this.radio, this.color, this.contexto, path));
-        }
-        this.dibujoCuerpo(); 
-      } 
+        this.dibujoCuerpo();
+    }
+    
 
     dibujoCirculo(x, y, radio, color) {
         this.contexto.beginPath();
-        this.contexto.arc(x, y,radio, 0, 2 * Math.PI);
+        this.contexto.arc(x, y, radio, 0, 2 * Math.PI);
         this.contexto.fillStyle = color;
         this.contexto.fill();
         this.contexto.closePath();
-
     }
 
     agregarCabeza() {
         let path = [];
-        for(let j = 0; j < 5; j++) {
+        for (let j = 0; j < 5; j++) {
             path.push({
-            // accedemos al ultimo lugar del cuerpo para agregar el nuevo cuerpo
-            x:this.body.slice(-1)[0].path.slice(-1)[0].x,
-            y:this.body.slice(-1)[0].path.slice(-1)[0].y
-            })
+                x: this.body.slice(-1)[0].path.slice(-1)[0].x,
+                y: this.body.slice(-1)[0].path.slice(-1)[0].y
+            });
         }
         this.body.push(new CuerpoSnake(this.radio, this.color, this.contexto, path));
-        }
-    
-    dibujoCabeza () {
-        this.dibujoCirculo(this.posicion.x, this.posicion.y,this.radio, this.color);
+    }
 
-        // ojazos nene
+    dibujoCabeza() {
+        this.dibujoCirculo(this.posicion.x, this.posicion.y, this.radio, this.color);
+
+        // Dibujar ojos
         this.dibujoCirculo(this.posicion.x, this.posicion.y - 9, this.radio - 5, "#fff");
         this.dibujoCirculo(this.posicion.x + 1, this.posicion.y - 9, this.radio - 7, "#000");
         this.dibujoCirculo(this.posicion.x + 5, this.posicion.y - 8, this.radio - 11, "#fff");
@@ -133,45 +137,36 @@ class snake {
         this.dibujoCirculo(this.posicion.x, this.posicion.y + 9, this.radio - 5, "#fff");
         this.dibujoCirculo(this.posicion.x + 1, this.posicion.y + 9, this.radio - 7, "#000");
         this.dibujoCirculo(this.posicion.x + 5, this.posicion.y + 8, this.radio - 11, "#fff");
-
     }
 
     actualizar() {
+        
         this.dibujoCuerpo();
         this.dibujo();
-        if (this.teclas.A && this.teclas.enable) {
-            this.rotacion -= 0.04;
-        }
-        if (this.teclas.D && this.teclas.enable) {
-            this.rotacion += 0.04;        }
+        if (this.teclas.A) this.rotacion -= 0.04;
+        if (this.teclas.D) this.rotacion += 0.04;
+
         this.posicion.x += Math.cos(this.rotacion) * this.velocidad;
         this.posicion.y += Math.sin(this.rotacion) * this.velocidad;
 
-        
-        
-        
+        this.colision();
     }
 
     dibujoCuerpo() {
+        this.body[0].path.unshift({ x: this.posicion.x, y: this.posicion.y });
+        if (this.body[0].path.length > 20) this.body[0].path.pop();
 
-        // con this.body(que es donde se 'guarda; el cuerpo del snake) se agrega un nuevo cuerpo en la primera posicion
-        this.body[0].path.unshift({
-            x: this.posicion.x,
-            y: this.posicion.y
-        })
-        // llamamos a la fn dibujo para que se dibuje el cuerpo
         this.body[0].dibujo();
 
         for (let i = 1; i < this.body.length; i++) {
-            this.body[i].path.unshift(this.body[i-1].path.pop());
+            this.body[i].path.unshift(this.body[i - 1].path.pop());
+            if (this.body[i].path.length > 20) this.body[i].path.pop();
             this.body[i].dibujo();
         }
-        this.body[this.body.length - 1].path.pop();
     }
 
     dibujo() {
         this.contexto.save();
-
         this.contexto.translate(this.posicion.x, this.posicion.y);
         this.contexto.rotate(30 * Math.PI / 180);
         this.contexto.translate(-this.posicion.x, -this.posicion.y);
@@ -181,57 +176,63 @@ class snake {
 
     tecladoPulse() {
         document.addEventListener("keydown", (e) => {
-            if(e.key == 'a' || e.key == 'A' || e.key == 'ArrowLeft' ) {
-                this.teclas.A = true;
-                this.direccion = { x: -1, y: 0 };
-                
-            }
-            if(e.key == 'd' || e.key == 'D' || e.key == 'ArrowRight') {
-                this.teclas.D = true;
-                this.direccion = { x: 1, y: 0 };
-                
-            }
-        })
-        
+            if (e.key.toLowerCase() === 'a' || e.key === 'ArrowLeft') this.teclas.A = true;
+            if (e.key.toLowerCase() === 'd' || e.key === 'ArrowRight') this.teclas.D = true;
+        });
+
         document.addEventListener("keyup", (e) => {
-            if(e.key == 'a' || e.key == 'A' || e.key == 'ArrowLeft') {
-                this.teclas.A = false;
-                
-            }
-            if(e.key == 'd' || e.key == 'D' || e.key == 'ArrowRight') {
-                this.teclas.D = false;
-                
-            }
-        })
+            if (e.key.toLowerCase() === 'a' || e.key === 'ArrowLeft') this.teclas.A = false;
+            if (e.key.toLowerCase() === 'd' || e.key === 'ArrowRight') this.teclas.D = false;
+        });
     }
 
+    colision() {
+        for (let i = 1; i < this.body.length; i++) {
+            if (
+                Math.hypot(
+                    this.posicion.x - this.body[i].path[0].x,
+                    this.posicion.y - this.body[i].path[0].y
+                ) < this.radio * 2
+            ) {
+                this.reiniciarJuego();
+                return;
+            }
+        }
 
-// creamos una instancia de la mismisima clase snake
+        if (this.posicion.x + this.radio > canvas.width) this.posicion.x = this.radio;
+        if (this.posicion.x - this.radio < 0) this.posicion.x = canvas.width - this.radio;
+        if (this.posicion.y + this.radio > canvas.height) this.posicion.y = this.radio;
+        if (this.posicion.y - this.radio < 0) this.posicion.y = canvas.height - this.radio;
+    }
 
-const SnakeFrost = new snake({x: 100, y: 100}, 12, 2, "#ff0094", ctx);
+    reiniciarJuego() {
+        this.posicion = { x: this.radio * 10, y: this.radio * 10 }; // Cerca del lado izquierdo
+        this.direccion = { x: 1, y: 0 }; // Dirección inicial hacia la derecha
+        this.body = []; // Limpia el cuerpo del snake
+        this.InicioJuego();
+    }
+}
+
+// Instancia de la serpiente y la manzana
+const SnakeFrost = new snake({ x: 10, y: 40 }, 11, 2, "#ff0094", ctx);
 SnakeFrost.InicioJuego();
-const manzanaFood = new apple({x: 100, y: 100}, 8, "red", ctx);
+const manzanaFood = new apple({ x: 200, y: 200 }, 8, "red", ctx);
 
-
-
-
-/* ------ solo dibuja el fondo -------
-* * * *  columnas en el bucle width
-* * * *  filas en el bucle height
-*/
+// Fondo del juego
 function fondoSnake() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#1B1C30";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    for(let i = 0; i < canvas.height; i+= 90) {
-        for(let j = 0; j < canvas.width; j+= 90) {
+    for (let i = 0; i < canvas.height; i += 90) {
+        for (let j = 0; j < canvas.width; j += 90) {
             ctx.fillStyle = "#23253C";
             ctx.fillRect(j, i, 70, 70);
         }
     }
 }
 
+// Lógica principal del juego
 function InitGame() {
     fondoSnake();
     SnakeFrost.actualizar();
@@ -239,4 +240,5 @@ function InitGame() {
     manzanaFood.colision(SnakeFrost);
     requestAnimationFrame(InitGame);
 }
-InitGame(); 
+
+InitGame();
