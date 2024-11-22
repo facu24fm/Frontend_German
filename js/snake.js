@@ -27,7 +27,13 @@ class apple {
         if (distancia < snake.radio + this.radio) {
             this.generarNuevaPosicion(snake);
             snake.agregarCabeza();
+
+            // Incrementar puntaje y actualizar el span
+            puntos += 10; 
+            document.getElementById("puntos").textContent = puntos;
         }
+
+
     }
 
     generarNuevaPosicion(snake) {
@@ -225,10 +231,14 @@ class snake {
         this.direccion = { x: 1, y: 0 }; 
         this.body = []; 
         this.InicioJuego();
+
+        puntos = 0;
+        document.getElementById("puntos").textContent = puntos;
     }
 }
 
-
+//proceda a declarar las variables
+let puntos = 0;
 
 
 //procedemos a declarar las constantes 
@@ -239,7 +249,7 @@ const puntosActual = document.getElementById('puntos');
 
 
 
-// vamos a iterar cada div de colores para que tengan la funcion, lo hacemos con un forEach
+// vamos a obtener el valor de los divs
 colorOptions.forEach((option) => {
     option.addEventListener('click', () => {
     const selectedColor = option.getAttribute('data-color');
@@ -256,10 +266,72 @@ inputTexto.addEventListener('input', (e) => {
     actualizarTexto(texto);
 })
 
+
+
+
 // Instancia de la serpiente y la manzana
 const SnakeFrost = new snake({ x: 10, y: 40 }, 11, 2, "#ff0094", ctx);
 SnakeFrost.InicioJuego();
 const manzanaFood = new apple({ x: 200, y: 200 }, 8, "red", ctx);
+
+
+
+// declaramos una variable para almacenar los puntajes, en este caso sera un array
+let topScores = [];
+
+async function cargarPuntajes() {
+    const response = await fetch("scores.json");
+    topScores = await response.json();
+
+    // Renderizar la lista inicial en el HTML
+    const listaHTML = document.getElementById("topScoresList");
+    listaHTML.innerHTML = ""; // Limpiar la lista actual
+
+    topScores.forEach((jugador) => {
+        const li = document.createElement("li");
+        li.textContent = `${jugador.name}: ${jugador.score}`;
+        listaHTML.appendChild(li);
+    });
+}
+
+cargarPuntajes();
+
+
+// Actualizar la lista de puntajes
+async function actualizarTopScores(nombre, puntos) {
+    topScores.push({ name: nombre, score: puntos });
+
+    // Ordenar y limitar a los 5 mejores
+    topScores.sort((a, b) => b.score - a.score);
+    topScores = topScores.slice(0, 5);
+
+    // Actualizar la lista en la página
+    const listaHTML = document.getElementById("topScoresList");
+    listaHTML.innerHTML = "";
+    topScores.forEach((jugador) => {
+        const li = document.createElement("li");
+        li.textContent = `${jugador.name}: ${jugador.score}`;
+        listaHTML.appendChild(li);
+    });
+
+    // Guardar los datos actualizados en el JSON
+    await guardarPuntajes();
+}
+
+// Procedemos a guardarlo en el json
+async function guardarPuntajes() {
+    await fetch("scores.json", {
+        method: "POST", 
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(topScores),
+    });
+}
+
+
+
+
 
 // Fondo del juego
 function fondoSnake() {
