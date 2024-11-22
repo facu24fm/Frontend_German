@@ -1,11 +1,18 @@
+// Seleccionamos el elemento <canvas> del HTML mediante el ID y obtenemos su contexto 2D para dibujar
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
+
+// Configuramos las dimensiones del canvas
 canvas.width = 500;
 canvas.height = 500;
 
 // Clase para representar la manzana
 class apple {
+    //radio va a representar el circulo de la manzana
+    //color va a representar el color de la manzana
+    // el contexto va a representar el canvas para dibujar
+    //path va a representar la posicion de la manzana
     constructor(posicion, radio, color, contexto) {
         this.posicion = posicion;
         this.radio = radio;
@@ -13,6 +20,8 @@ class apple {
         this.contexto = contexto;
     }
 
+    // Método para dibujar la manzana en el canvas
+    // vamos a utilizar lo mismo que en la serpiente
     dibujo() {
         this.contexto.beginPath();
         this.contexto.arc(this.posicion.x, this.posicion.y, this.radio, 0, 2 * Math.PI);
@@ -21,14 +30,17 @@ class apple {
         this.contexto.closePath();
     }
 
+    // Método para verificar colisión entre la manzana y la cabeza de la serpiente
+    // recibe el parametro snake
     colision(snake) {
         let distancia = Math.hypot(this.posicion.x - snake.posicion.x, this.posicion.y - snake.posicion.y);
 
+        // Verificar si la cabeza de la serpiente colisiona con la manzana
         if (distancia < snake.radio + this.radio) {
             this.generarNuevaPosicion(snake);
             snake.agregarCabeza();
 
-            // Incrementar puntaje y actualizar el span
+            // Incrementa el puntaje y actualiza el span, seria la puntuacion
             puntos += 10; 
             document.getElementById("puntos").textContent = puntos;
         }
@@ -36,6 +48,7 @@ class apple {
 
     }
 
+    // Genera una nueva posición para la manzana, asegurándose de que no colisione con la serpiente
     generarNuevaPosicion(snake) {
         let isValidPosition = false;
         while (!isValidPosition) {
@@ -49,7 +62,7 @@ class apple {
                 let distancia = Math.hypot(nuevaPosicion.x - segmento.path[0].x, nuevaPosicion.y - segmento.path[0].y);
                 return distancia > this.radio + snake.radio;
             });
-
+            // Si la nueva posicion es valida, se actualiza la posicion de la manzana
             if (isValidPosition) {
                 this.posicion = nuevaPosicion;
             }
@@ -59,13 +72,18 @@ class apple {
 
 // Clase para representar los segmentos del cuerpo de la serpiente
 class CuerpoSnake {
+    //radio va a representar el circulo de la serpiente
+    //color va a representar el color de la serpiente
+    // el contexto va a representar el canvas para dibujar
+    //path va a representar la posicion de la serpiente
     constructor(radio, color, contexto, path) {
         this.radio = radio;
         this.color = color;
         this.contexto = contexto;
         this.path = path;
     }
-
+    //Metodo para dibujar el cuerpo de la serpiente
+    //recibe los 4 parametros
     dibujoCirculo(x, y, radio, color) {
         this.contexto.beginPath();
         this.contexto.arc(x, y, radio, 0, 2 * Math.PI);
@@ -74,6 +92,7 @@ class CuerpoSnake {
         this.contexto.closePath();
     }
 
+    // Metodo para dibujar el cuerpo de la serpiente
     dibujo() {
         for (let i = 0; i < this.path.length; i++) {
             this.dibujoCirculo(this.path[i].x, this.path[i].y, this.radio, this.color);
@@ -95,13 +114,14 @@ class snake {
         this.tecladoPulse();
     }
 
+    // 
     InicioJuego() {
-
+        // Vacía el cuerpo de la serpiente
         this.body = [];
 
-        for (let i = 0; i < 5; i++) { // Crear 20 segmentos iniciales
+        for (let i = 0; i < 5; i++) { // Crear 5 segmentos iniciales
             let path = [];
-            for (let j = 0; j < 13; j++) { // Cada segmento tendrá 20 posiciones
+            for (let j = 0; j < 15; j++) { //define el tamaño de la serpiente
                 path.push({
                     x: this.posicion.x - j * this.radio * 2 - i * this.radio * 2, // Ajustamos la posición inicial
                     y: this.posicion.y
