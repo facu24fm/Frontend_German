@@ -153,6 +153,12 @@ class snake {
     }
 
     dibujoCuerpo() {
+        
+        this.body.forEach((cuerpo) => {
+            cuerpo.color = this.color; 
+            cuerpo.dibujo();
+          });
+
         this.body[0].path.unshift({ x: this.posicion.x, y: this.posicion.y });
         if (this.body[0].path.length > 20) this.body[0].path.pop();
 
@@ -163,6 +169,12 @@ class snake {
             if (this.body[i].path.length > 20) this.body[i].path.pop();
             this.body[i].dibujo();
         }
+
+        ctx.font = '24px Arial';
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        ctx.fillText(inputTexto.value, this.posicion.x + 20, this.posicion.y + 20);
     }
 
     dibujo() {
@@ -215,6 +227,34 @@ class snake {
         this.InicioJuego();
     }
 }
+
+
+
+
+//procedemos a declarar las constantes 
+const colorOptions = document.querySelectorAll('.color-option');
+const inputTexto = document.getElementById('input-texto');
+const puntosActual = document.getElementById('puntos');
+
+
+
+
+// vamos a iterar cada div de colores para que tengan la funcion, lo hacemos con un forEach
+colorOptions.forEach((option) => {
+    option.addEventListener('click', () => {
+    const selectedColor = option.getAttribute('data-color');
+    SnakeFrost.color = selectedColor;
+    });
+});
+
+
+
+// vamos a obtener la informacion del input para utilizarlo en la fn dibujoCuerpo
+inputTexto.addEventListener('input', (e) => {
+    const texto = e.target.value;
+    // Actualiza el texto en el canvas
+    actualizarTexto(texto);
+})
 
 // Instancia de la serpiente y la manzana
 const SnakeFrost = new snake({ x: 10, y: 40 }, 11, 2, "#ff0094", ctx);
